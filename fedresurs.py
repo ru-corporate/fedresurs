@@ -1,3 +1,11 @@
+"""Fedresurs parser.
+
+Requirements:
+ - needs geckodriver.exe on path
+ 
+Similar, but not maintained:
+- https://github.com/iyuershov/fedresurs-parser
+"""
 from dataclasses import dataclass
 
 from selenium import webdriver
@@ -54,6 +62,5 @@ browser.get("https://bankrot.fedresurs.ru/TradeList.aspx")
 rows = get_rows(browser)
 save(browser, "output.txt")
 row = rows[1]    
-xs = [Cell(e.text, find_href(e)) for e in elements(row)]
-    
+xs = [Cell(e.text, find_href(e)) for e in elements(row)]   
     

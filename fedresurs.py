@@ -1,10 +1,16 @@
 """Fedresurs parser.
 
 Requirements:
- - needs geckodriver.exe on path
+
+- needs geckodriver.exe on path
  
 Similar, but not maintained:
+
 - https://github.com/iyuershov/fedresurs-parser
+
+Maybe an endpoint:
+
+- [Веб-сервис передачи реестров, торгов и опубликованных сообщений из ЕФРСБ](https://fedresurs.ru/help?attempt=1)
 """
 from dataclasses import dataclass
 

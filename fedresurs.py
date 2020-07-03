@@ -1,17 +1,3 @@
-"""Fedresurs parser.
-
-Requirements:
-
-- needs geckodriver.exe on path
- 
-Similar, but not maintained:
-
-- https://github.com/iyuershov/fedresurs-parser
-
-Maybe an endpoint:
-
-- [Веб-сервис передачи реестров, торгов и опубликованных сообщений из ЕФРСБ](https://fedresurs.ru/help?attempt=1)
-"""
 from dataclasses import dataclass
 
 from selenium import webdriver
@@ -27,6 +13,11 @@ def save(browser, filename):
 
 def get_rows(browser):
     return (browser.find_element_by_id("ctl00_cphBody_gvTradeList")
+                   .find_elements_by_tag_name("tr"))
+
+
+def get_table(browser):
+    return (browser.find_element_by_id("ctl00_cphBody_gvMessages")
                    .find_elements_by_tag_name("tr"))
 
 def elements(row: WebElement):
@@ -52,21 +43,39 @@ assert split_link('https://bankrot.fedresurs.ru/'
 'TradePlaceCard.aspx?ID=9ff54c08-a553-4cb1-adba-37cfdad8dd53') \
     == '9ff54c08-a553-4cb1-adba-37cfdad8dd53'
 
-  
-# TODO: через organisation card 
-# https://bankrot.fedresurs.ru/OrganizationCard.aspx?ID=7719307CE8C3B0A985341D1EF29291FA
-# в список MessageWindow. Получить список MessageWindow
+def to_cells(row):
+    return [Cell(e.text, find_href(e)) for e in elements(row)]
 
-# TODO: разобрать https://bankrot.fedresurs.ru/MessageWindow.aspx?ID=DFCB8224776BE209EA64BF20482E5423
-# на лот-цена
+def pick_org(row):
+    return to_cells(row)[4]
+  
 
 options = Options()
 options.headless = True
-
 browser = webdriver.Firefox(options=options)
-browser.get("https://bankrot.fedresurs.ru/TradeList.aspx")
-rows = get_rows(browser)
-save(browser, "output.txt")
-row = rows[1]    
-xs = [Cell(e.text, find_href(e)) for e in elements(row)]   
-    
+
+if True:
+    browser.get("https://bankrot.fedresurs.ru/TradeList.aspx")
+    rows = get_rows(browser)
+    save(browser, "output.txt")
+    row = rows[1]    
+    xs = [Cell(e.text, find_href(e)) for e in elements(row)]
+    org = pick_org(row)
+    print(org)
+    print()
+
+if True:
+    browser.get('https://bankrot.fedresurs.ru/PrivatePersonCard.aspx?ID=CD47D44AAED1E028B004C4306C11B836')
+    table=[to_cells(row) for row in get_table(browser)]
+    for t in table:    
+        if t and t[1].text == 'Объявление о проведении торгов':
+            print (t)
+    print()
+
+
+if True:        
+    browser.get("https://bankrot.fedresurs.ru/MessageWindow.aspx?ID=D536249DB6DDF368E904BDD916D413BB")
+    ys = [to_cells(tr) for tr in browser.find_element_by_class_name("lotInfo").find_elements_by_tag_name("tr")]
+    what, price = ys[1][1:3]
+    print(what, price)
+    print()    
